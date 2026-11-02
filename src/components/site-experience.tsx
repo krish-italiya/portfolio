@@ -31,7 +31,7 @@ export function SiteExperienceGate() {
     let ready = false;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const introKey = "krish-portfolio-intro-v1";
-    const shouldPlayIntro = !reducedMotion && window.sessionStorage.getItem(introKey) !== "seen";
+    const shouldPlayIntro = !reducedMotion && !document.cookie.split("; ").some((cookie) => cookie.startsWith(introKey + "=seen"));
 
     const slowLoadTimer = window.setTimeout(() => {
       if (!cancelled && !ready) setPhase("loading");
@@ -43,7 +43,7 @@ export function SiteExperienceGate() {
       if (cancelled) return;
 
       if (shouldPlayIntro) {
-        window.sessionStorage.setItem(introKey, "seen");
+        document.cookie = introKey + "=seen; path=/; SameSite=Lax" + (window.location.protocol === "https:" ? "; Secure" : "");
         setPhase("intro");
       } else {
         setPhase("done");
