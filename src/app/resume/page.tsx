@@ -1,6 +1,5 @@
 "use client";
 
-import "./resume.css";
 import { ArrowLeft, Download } from "lucide-react";
 import { education, experience, leadership, profile, projects, skills } from "@/data/portfolio";
 

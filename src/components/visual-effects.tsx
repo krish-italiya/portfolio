@@ -257,7 +257,7 @@ export function ParticlePortrait() {
         <span>{usingPhoto ? "PORTRAIT SOURCE / ACTIVE" : "PHOTO SLOT / MONOGRAM PREVIEW"}</span>
         <button onClick={() => setReplay((value) => value + 1)} aria-label="Replay particle assembly"><RefreshCw size={12} /> REASSEMBLE</button>
       </div>
-      {!usingPhoto && <div className="portrait-note">Add your photo at <code>public/portrait.jpg</code> to replace the monogram with your portrait.</div>}
+      {!usingPhoto && <div className="portrait-note">Add a transparent portrait at <code>public/portrait.png</code> to replace the monogram with your portrait.</div>}
     </div>
   );
 }
@@ -307,7 +307,6 @@ export function CustomCursor() {
     window.addEventListener("pointerup", onUp);
     window.addEventListener("blur", onWindowLeave);
     const tick = () => {
-      if (!visible) return;
       ringX += (x - ringX) * 0.16;
       ringY += (y - ringY) * 0.16;
       dot.style.transform = "translate3d(" + x + "px," + y + "px,0)";
