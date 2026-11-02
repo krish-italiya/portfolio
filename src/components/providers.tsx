@@ -34,8 +34,8 @@ function subscribeSystemTheme(callback: () => void) {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => "system");
-  const systemTheme = useSyncExternalStore(subscribeSystemTheme, readSystemTheme, () => "dark");
+  const theme = useSyncExternalStore<ThemeChoice>(subscribeTheme, readTheme, (): ThemeChoice => "system");
+  const systemTheme = useSyncExternalStore<"dark" | "light">(subscribeSystemTheme, readSystemTheme, (): "dark" | "light" => "dark");
   const resolvedTheme = theme === "system" ? systemTheme : theme;
 
   const setTheme = useCallback((next: ThemeChoice) => {
