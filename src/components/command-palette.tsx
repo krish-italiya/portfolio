@@ -25,26 +25,35 @@ export function CommandPalette() {
     () => commands.filter((item) => (item.label + " " + item.detail).toLowerCase().includes(query.toLowerCase())),
     [query]
   );
+  const openPalette = () => {
+    setQuery("");
+    setActive(0);
+    setOpen(true);
+  };
+  const closePalette = () => setOpen(false);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
+        setQuery("");
+        setActive(0);
         setOpen((value) => !value);
       }
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") closePalette();
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("krish-open-command", openPalette);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("krish-open-command", openPalette);
+    };
   }, []);
 
   useEffect(() => {
-    if (open) {
-      window.setTimeout(() => inputRef.current?.focus(), 30);
-      setActive(0);
-    } else {
-      setQuery("");
-    }
+    if (!open) return;
+    const timer = window.setTimeout(() => inputRef.current?.focus(), 35);
+    return () => window.clearTimeout(timer);
   }, [open]);
 
   const onInputKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -54,24 +63,24 @@ export function CommandPalette() {
       const item = filtered[active];
       if (item.external) window.open(item.href, "_blank", "noopener,noreferrer");
       else document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" });
-      setOpen(false);
+      closePalette();
     }
   };
 
   return (
     <>
-      <button className="command-trigger" onClick={() => setOpen(true)} aria-label="Open command palette" data-cursor="COMMAND">
+      <button className="command-trigger" onClick={openPalette} aria-label="Open command palette" data-cursor="COMMAND">
         <Command size={13} /><span>COMMAND</span><kbd>⌘ K</kbd>
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div className="command-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={() => setOpen(false)}>
+          <motion.div className="command-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={closePalette}>
             <motion.div className="command-dialog" initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 12, scale: 0.98 }} onMouseDown={(event) => event.stopPropagation()}>
               <div className="command-search"><Search size={17} /><input ref={inputRef} value={query} onChange={(event) => { setQuery(event.target.value); setActive(0); }} onKeyDown={onInputKey} placeholder="Search pages, projects, links..." aria-label="Search commands" /><kbd>ESC</kbd></div>
               <div className="command-list">
                 <div className="command-caption">NAVIGATE / EXPLORE</div>
                 {filtered.map((item, index) => (
-                  <button key={item.key} className={"command-item " + (active === index ? "is-active" : "")} onMouseEnter={() => setActive(index)} onClick={() => { if (item.external) window.open(item.href, "_blank", "noopener,noreferrer"); else document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" }); setOpen(false); }}>
+                  <button key={item.key} className={"command-item " + (active === index ? "is-active" : "")} onMouseEnter={() => setActive(index)} onClick={() => { if (item.external) window.open(item.href, "_blank", "noopener,noreferrer"); else document.querySelector(item.href)?.scrollIntoView({ behavior: "smooth" }); closePalette(); }}>
                     <span className="command-key">{item.key}</span><span className="command-copy"><strong>{item.label}</strong><small>{item.detail}</small></span>{item.external ? <ArrowUpRight size={15} /> : <span className="command-arrow">↵</span>}
                   </button>
                 ))}

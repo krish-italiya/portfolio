@@ -1,6 +1,6 @@
 # KRISH.OS — Engineering Portfolio
 
-An interactive portfolio for Krish Italiya, built from scratch with Next.js, TypeScript, Tailwind CSS, Framer Motion, Canvas, and Lucide.
+An interactive portfolio for Krish Italiya, built with Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Three.js, and MediaPipe.
 
 ## Local development
 
@@ -20,13 +20,18 @@ npm run build
 
 GitHub Actions runs lint and production build on pushes and pull requests to \`main\`.
 
-## Portrait asset
+## Hero portrait source
 
-The hero uses a Canvas particle assembly. Until a portrait is provided, it assembles the KI monogram. To use a real portrait, place a **transparent-background PNG** at:
+Add your portrait at \`public/portrait.png\`.
 
-\`public/portrait.png\`
+- A transparent PNG uses its alpha channel directly.
+- An ordinary portrait PNG is segmented on-device with MediaPipe Selfie Segmenter before points are generated. The image itself is not uploaded to a remote image-processing service.
+- Use a front-facing or slight three-quarter portrait, shoulders visible, even lighting, and a simple background for the cleanest result.
+- When the asset is missing, the hero renders a temporary silhouette point-cloud rather than a rectangular grid.
 
-A transparent cutout gives the particles a clean subject silhouette. A JPG or a photograph with a busy background will produce a weaker particle mask.
+The particle effect uses a Three.js point cloud and custom GPU shaders. The point positions, scatter paths, color and stagger values are prepared once; the vertex shader handles convergence and pointer response per frame.
+
+MediaPipe assets are loaded on demand from Google's model storage and jsDelivr. Segmentation runs once for the static portrait, not as a continuous video task.
 
 ## Resume
 
@@ -34,7 +39,7 @@ The \`/resume\` route is a print-ready HTML resume. Use **Print / Save PDF** in 
 
 ## Deployment
 
-The project is a standard Next.js app and can be deployed to Vercel by importing this repository. No environment variables are required for the public GitHub profile card.
+Import this repository into Vercel. Set \`NEXT_PUBLIC_SITE_URL\` to the canonical production URL to publish an absolute sitemap URL.
 
 ## Content accuracy
 

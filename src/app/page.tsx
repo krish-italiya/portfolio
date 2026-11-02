@@ -30,7 +30,7 @@ function Reveal({ children, className = "", delay = 0 }: { children: React.React
     const node = ref.current;
     if (!node) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) { setVisible(true); return; }
+    if (reduce) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setVisible(true);
@@ -198,6 +198,7 @@ export default function Home() {
           <motion.div className="hero-focus" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .45 }}>
             <span className="hero-focus-label">CURRENT FOCUS</span><span className="focus-separator"/><span className="focus-items">{profile.currentFocus.join(" · ")}</span>
           </motion.div>
+          <div className="hero-scroll-cue"><span className="scroll-cue-line"/><span>SCROLL TO EXPLORE</span><span className="scroll-cue-index">01 — 06</span></div>
         </div>
         <motion.div className="hero-visual" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .8, delay: .16 }}>
           <div className="visual-glow"/>
@@ -320,5 +321,5 @@ export default function Home() {
 }
 
 function CommandButton() {
-  return <button className="command-trigger" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} aria-label="Open command palette"><Command size={13}/><span>COMMAND</span><kbd>⌘ K</kbd></button>;
+  return <button className="command-trigger" onClick={() => window.dispatchEvent(new Event("krish-open-command"))} aria-label="Open command palette"><Command size={13}/><span>COMMAND</span><kbd>⌘ K</kbd></button>;
 }

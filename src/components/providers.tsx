@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 export type ThemeChoice = "dark" | "light" | "system";
 
@@ -12,37 +12,43 @@ type ThemeContextValue = {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
+function readTheme(): ThemeChoice {
+  const saved = window.localStorage.getItem("krish-os-theme");
+  return saved === "dark" || saved === "light" || saved === "system" ? saved : "system";
+}
+function subscribeTheme(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener("krish-os-theme-change", callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener("krish-os-theme-change", callback);
+  };
+}
+function readSystemTheme(): "dark" | "light" {
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+function subscribeSystemTheme(callback: () => void) {
+  const media = window.matchMedia("(prefers-color-scheme: light)");
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<ThemeChoice>("system");
-  const [systemTheme, setSystemTheme] = useState<"dark" | "light">("dark");
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem("krish-os-theme") as ThemeChoice | null;
-    if (saved === "dark" || saved === "light" || saved === "system") setThemeState(saved);
-    const media = window.matchMedia("(prefers-color-scheme: light)");
-    const sync = () => setSystemTheme(media.matches ? "light" : "dark");
-    sync();
-    media.addEventListener("change", sync);
-    setMounted(true);
-    return () => media.removeEventListener("change", sync);
-  }, []);
-
-  const setTheme = useCallback((next: ThemeChoice) => {
-    setThemeState(next);
-    window.localStorage.setItem("krish-os-theme", next);
-  }, []);
-
+  const theme = useSyncExternalStore(subscribeTheme, readTheme, () => "system");
+  const systemTheme = useSyncExternalStore(subscribeSystemTheme, readSystemTheme, () => "dark");
   const resolvedTheme = theme === "system" ? systemTheme : theme;
 
+  const setTheme = useCallback((next: ThemeChoice) => {
+    window.localStorage.setItem("krish-os-theme", next);
+    window.dispatchEvent(new Event("krish-os-theme-change"));
+  }, []);
+
   useEffect(() => {
-    if (!mounted) return;
     document.documentElement.dataset.theme = resolvedTheme;
     document.documentElement.style.colorScheme = resolvedTheme;
-  }, [mounted, resolvedTheme]);
+  }, [resolvedTheme]);
 
   const value = useMemo(() => ({ theme, resolvedTheme, setTheme }), [theme, resolvedTheme, setTheme]);
-
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
@@ -63,7 +69,7 @@ export function ThemeControl() {
 
   return (
     <div className="theme-control">
-      <button className="icon-button theme-trigger" aria-label="Choose color theme" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+      <button className="icon-button theme-trigger" aria-label="Choose color theme" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
         <span aria-hidden="true">{options.find((option) => option.value === theme)?.symbol}</span>
         <span className="theme-trigger-label">{theme}</span>
       </button>

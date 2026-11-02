@@ -13,7 +13,9 @@
     "lucide-react": "^0.468.0",
     "next": "^16.4.4",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "@mediapipe/tasks-vision": "^1.2.0",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.16",
@@ -23,6 +25,7 @@
     "eslint": "^9.38.0",
     "eslint-config-next": "^16.4.4",
     "tailwindcss": "^4.1.16",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@types/three": "^0.187.0"
   }
 }
