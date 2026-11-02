@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Krish Italiya — Software Engineer",
   description:
     "The engineering portfolio of Krish Italiya: software engineer building interfaces, systems, and developer tools.",
-  metadataBase: new URL("https://krish-italiya.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? "https://" + process.env.VERCEL_URL : "http://localhost:3000")),
   openGraph: {
     title: "Krish Italiya — Software Engineer",
     description: "Interfaces, systems, and the connective tissue between them.",

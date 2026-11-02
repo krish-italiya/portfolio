@@ -364,7 +364,7 @@ img, canvas { display: block; }
 .cursor-active .cursor-ring { width: 46px; height: 46px; margin: -23px; background: color-mix(in srgb, var(--accent) 8%, transparent); }
 .cursor-active .cursor-label { opacity: 1; }
 .cursor-pressed .cursor-ring { width: 20px; height: 20px; margin: -10px; }
-@media (pointer: fine) { body, a, button { cursor: none; } input, textarea { cursor: text; } }
+@media (pointer: fine) { html.custom-cursor-enabled body, html.custom-cursor-enabled a, html.custom-cursor-enabled button { cursor: none; } input, textarea { cursor: text; } }
 
 /* Motion and responsive */
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .75s cubic-bezier(.2,.7,.2,1), transform .75s cubic-bezier(.2,.7,.2,1); }
@@ -494,4 +494,3 @@ img, canvas { display: block; }
   .resume-sheet { width: 100%; padding: 0; box-shadow: none; }
   .resume-entry, .resume-section { break-inside: avoid; }
 }
-html.custom-cursor-enabled body, html.custom-cursor-enabled a, html.custom-cursor-enabled button { cursor: none; }
