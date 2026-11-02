@@ -223,7 +223,7 @@ export function ParticlePortrait() {
     const photo = new Image();
     photo.onload = () => run(photo);
     photo.onerror = () => run(null);
-    photo.src = "/portrait.jpg";
+    photo.src = "/portrait.png";
     const fallbackTimer = window.setTimeout(() => {
       if (!photo.complete) run(null);
     }, 900);
@@ -280,20 +280,11 @@ export function CustomCursor() {
     let ringX = -100;
     let ringY = -100;
     let frame = 0;
-    let visible = false;
 
     const move = (event: PointerEvent) => {
       x = event.clientX;
       y = event.clientY;
-      visible = true;
       root.classList.add("cursor-visible");
-    };
-    const animate = () => {
-      ringX += (x - ringX) * 0.16;
-      ringY += (y - ringY) * 0.16;
-      dot.style.transform = "translate3d(" + x + "px," + y + "px,0)";
-      ring.style.transform = "translate3d(" + ringX + "px," + ringY + "px,0)";
-      if (visible) frame = window.requestAnimationFrame(animate);
     };
     const onEnter = (event: Event) => {
       const target = event.target as HTMLElement | null;
@@ -306,6 +297,7 @@ export function CustomCursor() {
     const onLeave = () => root.classList.remove("cursor-active");
     const onDown = () => root.classList.add("cursor-pressed");
     const onUp = () => root.classList.remove("cursor-pressed");
+    document.documentElement.classList.add("custom-cursor-enabled");
     const onWindowLeave = () => root.classList.remove("cursor-visible");
 
     window.addEventListener("pointermove", move, { passive: true });
@@ -326,6 +318,7 @@ export function CustomCursor() {
 
     return () => {
       window.cancelAnimationFrame(frame);
+      document.documentElement.classList.remove("custom-cursor-enabled");
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerover", onEnter, true);
       window.removeEventListener("pointerout", onLeave, true);

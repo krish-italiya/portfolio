@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowDownRight, ArrowRight, ArrowUpRight, Braces, Check, Command, Cpu,
-  ExternalLink, FileText, Github, Globe2, Layers3, Linkedin, Menu, Moon,
-  Send, Terminal, Zap
+  ArrowDownRight, ArrowRight, ArrowUpRight, Check, Command,
+  FileText, Github, Globe2, Layers3, Linkedin, Menu,
+  Send, Terminal
 } from "lucide-react";
 import {
   achievements, education, experience, leadership, profile, projects, signals, skills
@@ -306,7 +306,7 @@ export default function Home() {
             <a href={"mailto:" + profile.email} className="contact-link"><span><Globe2 size={15}/>{profile.email}</span><ArrowUpRight size={14}/></a>
             <a href={profile.github} target="_blank" rel="noreferrer" className="contact-link"><span><Github size={15}/>GitHub</span><ArrowUpRight size={14}/></a>
             <a href={profile.linkedin} target="_blank" rel="noreferrer" className="contact-link"><span><Linkedin size={15}/>LinkedIn</span><ArrowUpRight size={14}/></a>
-            <a href="/Krish_Italiya_Resume.pdf" target="_blank" rel="noreferrer" className="contact-link"><span><FileText size={15}/>Resume PDF</span><ArrowUpRight size={14}/></a>
+            <a href="/resume" className="contact-link"><span><FileText size={15}/>View / print resume</span><ArrowUpRight size={14}/></a>
           </Reveal>
         </div>
       </section>
@@ -320,13 +320,5 @@ export default function Home() {
 }
 
 function CommandButton() {
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") setOpen(true);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
-  return <button className="command-trigger" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))}><Command size={13}/><span>COMMAND</span><kbd>⌘ K</kbd></button>;
+  return <button className="command-trigger" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }))} aria-label="Open command palette"><Command size={13}/><span>COMMAND</span><kbd>⌘ K</kbd></button>;
 }
