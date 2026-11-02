@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://krish-italiya.vercel.app/sitemap.xml
