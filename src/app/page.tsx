@@ -12,7 +12,6 @@ import {
 } from "framer-motion";
 import {
   ArrowDownRight,
-  ArrowRight,
   ArrowUpRight,
   Award,
   BriefcaseBusiness,
@@ -20,16 +19,13 @@ import {
   ChevronDown,
   Cloud,
   Code2,
-  Database,
   ExternalLink,
   FileText,
   Github,
   GraduationCap,
-  Layers3,
   Linkedin,
   Mail,
   Menu,
-  Monitor,
   Send,
   Sparkles,
   X
@@ -578,7 +574,6 @@ function ProjectsSection() {
 
 function SkillsSection() {
   const [selected, setSelected] = useState(0);
-  const [currentSkills, setCurrentSkills] = useState(skills[0]);
   const currentIndex = Math.min(selected, skills.length - 1);
   const group = skills[currentIndex];
 
