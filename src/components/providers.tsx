@@ -1,54 +1,49 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Moon, Sun } from "lucide-react";
 
-export type ThemeChoice = "dark" | "light" | "system";
-
+type Theme = "dark" | "light";
 type ThemeContextValue = {
-  theme: ThemeChoice;
-  resolvedTheme: "dark" | "light";
-  setTheme: (theme: ThemeChoice) => void;
+  theme: Theme;
+  toggleTheme: (origin: { x: number; y: number }) => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-function readTheme(): ThemeChoice {
-  const saved = window.localStorage.getItem("krish-os-theme");
-  return saved === "dark" || saved === "light" || saved === "system" ? saved : "system";
-}
-function subscribeTheme(callback: () => void) {
-  window.addEventListener("storage", callback);
-  window.addEventListener("krish-os-theme-change", callback);
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener("krish-os-theme-change", callback);
-  };
-}
-function readSystemTheme(): "dark" | "light" {
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-}
-function subscribeSystemTheme(callback: () => void) {
-  const media = window.matchMedia("(prefers-color-scheme: light)");
-  media.addEventListener("change", callback);
-  return () => media.removeEventListener("change", callback);
-}
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useSyncExternalStore<ThemeChoice>(subscribeTheme, readTheme, (): ThemeChoice => "system");
-  const systemTheme = useSyncExternalStore<"dark" | "light">(subscribeSystemTheme, readSystemTheme, (): "dark" | "light" => "dark");
-  const resolvedTheme = theme === "system" ? systemTheme : theme;
-
-  const setTheme = useCallback((next: ThemeChoice) => {
-    window.localStorage.setItem("krish-os-theme", next);
-    window.dispatchEvent(new Event("krish-os-theme-change"));
-  }, []);
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    document.documentElement.dataset.theme = resolvedTheme;
-    document.documentElement.style.colorScheme = resolvedTheme;
-  }, [resolvedTheme]);
+    const stored = window.localStorage.getItem("krish-portfolio-theme");
+    const next: Theme = stored === "light" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
+    document.documentElement.style.colorScheme = next;
+  }, []);
 
-  const value = useMemo(() => ({ theme, resolvedTheme, setTheme }), [theme, resolvedTheme, setTheme]);
+  const toggleTheme = useCallback((origin: { x: number; y: number }) => {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    const root = document.documentElement;
+    root.style.setProperty("--theme-origin-x", origin.x + "px");
+    root.style.setProperty("--theme-origin-y", origin.y + "px");
+    root.dataset.theme = next;
+    root.style.colorScheme = next;
+    root.classList.remove("theme-ripple");
+    void root.offsetWidth;
+    root.classList.add("theme-ripple");
+    window.localStorage.setItem("krish-portfolio-theme", next);
+    setTheme(next);
+  }, [theme]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const clearRipple = () => root.classList.remove("theme-ripple");
+    root.addEventListener("animationend", clearRipple);
+    return () => root.removeEventListener("animationend", clearRipple);
+  }, []);
+
+  const value = useMemo(() => ({ theme, toggleTheme }), [theme, toggleTheme]);
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
@@ -59,29 +54,23 @@ export function useTheme() {
 }
 
 export function ThemeControl() {
-  const { theme, setTheme } = useTheme();
-  const [open, setOpen] = useState(false);
-  const options: { value: ThemeChoice; label: string; symbol: string }[] = [
-    { value: "system", label: "System", symbol: "◐" },
-    { value: "dark", label: "Dark", symbol: "☾" },
-    { value: "light", label: "Light", symbol: "☼" }
-  ];
+  const { theme, toggleTheme } = useTheme();
+  const onToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    toggleTheme({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+  };
 
   return (
-    <div className="theme-control">
-      <button className="icon-button theme-trigger" aria-label="Choose color theme" aria-expanded={open} onClick={() => setOpen((value) => !value)}>
-        <span aria-hidden="true">{options.find((option) => option.value === theme)?.symbol}</span>
-        <span className="theme-trigger-label">{theme}</span>
-      </button>
-      {open && (
-        <div className="theme-menu" role="menu">
-          {options.map((option) => (
-            <button key={option.value} role="menuitemradio" aria-checked={theme === option.value} onClick={() => { setTheme(option.value); setOpen(false); }}>
-              <span>{option.symbol}</span>{option.label}{theme === option.value && <span className="theme-check">✓</span>}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      className="theme-control"
+      onClick={onToggle}
+      aria-label={"Switch to " + (theme === "dark" ? "light" : "dark") + " theme"}
+      aria-pressed={theme === "light"}
+      title={"Switch to " + (theme === "dark" ? "light" : "dark") + " theme"}
+    >
+      <span className="theme-icon" key={theme}>{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</span>
+      <span className="theme-control-label">{theme === "dark" ? "Light" : "Dark"}</span>
+    </button>
   );
 }

@@ -1,325 +1,365 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { motion, MotionConfig } from "framer-motion";
 import {
-  ArrowDownRight, ArrowRight, ArrowUpRight, Check, Command,
-  FileText, Github, Globe2, Layers3, Linkedin, Menu,
-  Send, Terminal
+  ArrowDownRight, ArrowRight, ArrowUpRight, Award, BriefcaseBusiness,
+  Cloud, Code2, Database, ExternalLink, FileText, Github, GraduationCap,
+  Layers3, Linkedin, Mail, Menu, Monitor, Send, Terminal, X, Check
 } from "lucide-react";
 import {
-  achievements, education, experience, leadership, profile, projects, signals, skills
+  achievements, education, experience, leadership, profile, projects, skills
 } from "@/data/portfolio";
 import { ThemeControl } from "@/components/providers";
-import { ParticlePortrait } from "@/components/visual-effects";
-import { CommandPalette } from "@/components/command-palette";
-import { ProjectDialog } from "@/components/project-dialog";
 
 const navItems = [
-  ["Experience", "#experience"],
-  ["Projects", "#projects"],
-  ["Systems", "#systems"],
-  ["Stack", "#stack"],
-  ["Contact", "#contact"]
+  ["Home", "#home"], ["Experience", "#experience"], ["Projects", "#projects"],
+  ["Skills", "#skills"], ["Playground", "#playground"], ["About", "#about"], ["Contact", "#contact"]
 ];
 
 function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.12 }}
+      transition={{ duration: 0.62, delay, ease: [0.22, 1, 0.36, 1] }}
+    >{children}</motion.div>
+  );
+}
+
+function SectionTitle({ eyebrow, title, description }: { eyebrow: string; title: string; description?: string }) {
+  return (
+    <div className="section-heading">
+      <div>
+        <div className="section-eyebrow"><span />{eyebrow}</div>
+        <h2>{title}</h2>
+      </div>
+      {description && <p>{description}</p>}
+    </div>
+  );
+}
+
+function Header() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [active, setActive] = useState("home");
+
   useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setVisible(true);
-        observer.unobserve(entry.target);
-      }
-    }, { threshold: 0.12, rootMargin: "0px 0px -35px 0px" });
-    observer.observe(node);
+    const elements = navItems.map(([, href]) => document.querySelector<HTMLElement>(href)).filter((node): node is HTMLElement => Boolean(node));
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+      if (visible[0]) setActive(visible[0].target.id);
+    }, { rootMargin: "-22% 0px -63% 0px", threshold: [0, 0.15, 0.35, 0.6] });
+    elements.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
   }, []);
-  return <div ref={ref} className={"reveal " + (visible ? "is-visible " : "") + (delay ? "delay-" + delay + " " : "") + className}>{children}</div>;
-}
 
-function SectionHeading({ index, title, description }: { index: string; title: string; description: string }) {
   return (
-    <div className="section-head">
-      <div><div className="eyebrow">{index} / KRISH.OS</div><h2 className="section-title">{title}</h2></div>
-      <p className="section-description">{description}</p>
-    </div>
-  );
-}
-
-function TerminalWidget() {
-  const [input, setInput] = useState("");
-  const [lines, setLines] = useState<string[]>([
-    "krish-os shell / build 1.0.0",
-    "This is a portfolio terminal. Type 'help' to begin."
-  ]);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const commands: Record<string, string> = {
-    help: "Available: about · skills · projects · experience · contact · clear",
-    about: "Krish Italiya — software engineer building interfaces, systems, and developer tools.",
-    skills: "React · TypeScript · Java · Spring Boot · Oracle · Docker · Google Cloud",
-    projects: "Featured builds: Foundry, InstaCV, Airbnb Clone, IPL Data Analysis. Scroll to #projects.",
-    experience: "Currently: Software Engineer · Associate 2 at State Street Corporation.",
-    contact: "Email: krishitaliya11@gmail.com"
-  };
-  const run = (raw: string) => {
-    const command = raw.trim().toLowerCase();
-    if (!command) return;
-    if (command === "clear") { setLines([]); setInput(""); return; }
-    setLines((current) => [...current, "> " + raw, commands[command] || "Command not found. Type 'help' for available commands."]);
-    setInput("");
-  };
-  return (
-    <div className="terminal">
-      <div className="terminal-header"><div className="terminal-title"><Terminal size={13} className="accent-text" /> krish@portfolio:~</div><div className="terminal-lights"><i/><i/><i/></div></div>
-      <div className="terminal-body">
-        <div className="terminal-lines" aria-live="polite">
-          {lines.map((line, index) => <div key={index} className={line.startsWith(">") ? "command-line" : ""}>{line}</div>)}
+    <>
+      <header className="site-header">
+        <div className="page-width nav-inner">
+          <a href="#home" className="brand" aria-label="Krish Italiya home">
+            <span className="brand-symbol">KI<span>.</span></span>
+            <span className="brand-copy"><strong>Krish Italiya</strong><small>SOFTWARE ENGINEER</small></span>
+          </a>
+          <nav className="desktop-nav" aria-label="Main navigation">
+            {navItems.map(([label, href]) => <a href={href} key={href} className={active === href.slice(1) ? "active" : ""}>{label}</a>)}
+          </nav>
+          <div className="nav-actions">
+            <a className="nav-social" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub"><Github size={17} /></a>
+            <a className="nav-social" href={profile.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin size={17} /></a>
+            <ThemeControl />
+            <button type="button" className="mobile-menu-button" onClick={() => setMobileOpen((open) => !open)} aria-label={mobileOpen ? "Close navigation" : "Open navigation"} aria-expanded={mobileOpen}>
+              {mobileOpen ? <X size={19} /> : <Menu size={19} />}
+            </button>
+          </div>
         </div>
-        <form className="terminal-prompt" onSubmit={(event) => { event.preventDefault(); run(input); }}>
-          <span>➜</span><input ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} placeholder="type a command..." aria-label="Portfolio terminal command" /><button type="submit" aria-label="Run command"><ArrowRight size={14}/></button>
-        </form>
-      </div>
-    </div>
+        {mobileOpen && (
+          <nav className="mobile-nav" aria-label="Mobile navigation">
+            {navItems.map(([label, href]) => <a href={href} key={href} onClick={() => setMobileOpen(false)}>{label}</a>)}
+            <a href="/resume" className="mobile-resume">View résumé <ArrowUpRight size={14} /></a>
+          </nav>
+        )}
+      </header>
+    </>
   );
 }
 
-function GithubCard() {
-  const [stats, setStats] = useState<{ publicRepos: number; followers: number } | null>(null);
-  const [failed, setFailed] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    fetch("/api/github").then((response) => {
-      if (!response.ok) throw new Error("Profile stats unavailable");
-      return response.json();
-    }).then((data) => {
-      if (alive) setStats({ publicRepos: data.publicRepos, followers: data.followers });
-    }).catch(() => { if (alive) setFailed(true); });
-    return () => { alive = false; };
-  }, []);
-  return (
-    <div className="github-card">
-      <div className="github-head">
-        <div className="github-avatar"><Github size={20}/><div><strong>krish-italiya</strong><small>PUBLIC GITHUB PROFILE</small></div></div>
-        <a href={profile.github} target="_blank" rel="noreferrer" className="icon-button" aria-label="Open GitHub profile"><ArrowUpRight size={16}/></a>
-      </div>
-      <div className="github-metrics">
-        <div className="github-metric"><strong>{stats ? stats.publicRepos : "—"}</strong><span>Public repositories</span></div>
-        <div className="github-metric"><strong>{stats ? stats.followers : "—"}</strong><span>Followers</span></div>
-      </div>
-      <div className="github-note">{failed ? "GitHub profile stats are temporarily unavailable. The profile link remains live." : "Profile figures fetched from GitHub and cached for one hour."}</div>
-    </div>
-  );
-}
-
-function ProjectCard({ project, onOpen, index }: { project: typeof projects[number]; onOpen: () => void; index: number }) {
-  return (
-    <Reveal delay={index % 2 ? 1 : 0} className={project.featured ? "project-card-wrap featured" : "project-card-wrap"}>
-      <button className={"project-card panel-hover " + (project.featured ? "featured" : "")} onClick={onOpen} data-cursor="EXPLORE">
-        <div className="project-topline"><span className="project-index">{project.number} / {project.category}</span><span className="project-status">{project.status}</span></div>
-        <div className="project-main">
-          <div><h3 className="project-title">{project.name}<ArrowUpRight size={18}/></h3><p className="project-summary">{project.summary}</p><div className="tag-list">{project.stack.slice(0, 5).map((tag) => <span key={tag}>{tag}</span>)}</div></div>
-          {project.featured && <div className="project-art" aria-hidden="true"><div className="project-art-icon"><Layers3 size={23}/></div><div className="project-art-lines"><span/><span/><span/></div></div>}
+function ProjectArtwork({ id }: { id: string }) {
+  if (id === "foundry") return (
+    <div className="project-artwork foundry-art" aria-hidden="true">
+      <div className="art-topbar"><i /><i /><i /><span>foundry / deployments</span></div>
+      <div className="art-dashboard">
+        <div className="art-sidebar"><b /><i /><i /><i /><i /></div>
+        <div className="art-main">
+          <div className="art-dash-title">Deployments <span>+</span></div>
+          <div className="art-stat-row"><i /><i /><i /></div>
+          <div className="art-table-row"><b /><i /><em /></div>
+          <div className="art-table-row"><b /><i /><em /></div>
+          <div className="art-table-row"><b /><i /><em /></div>
         </div>
-        <div className="project-footer"><span>OPEN ENGINEERING CASE STUDY</span><ArrowDownRight size={15}/></div>
-      </button>
+      </div>
+    </div>
+  );
+  if (id === "instacv") return (
+    <div className="project-artwork cv-art" aria-hidden="true">
+      <div className="art-topbar"><i /><i /><i /><span>instacv / editor</span></div>
+      <div className="cv-split">
+        <div className="cv-controls"><b /><i /><i /><i /><i /><i /></div>
+        <div className="cv-paper"><b /><strong /><i /><i /><i /><i /><i /><em /></div>
+      </div>
+    </div>
+  );
+  if (id === "airbnb") return (
+    <div className="project-artwork stays-art" aria-hidden="true">
+      <div className="art-topbar"><i /><i /><i /><span>stays / explore</span></div>
+      <div className="stays-content">
+        <strong>Find your next stay</strong>
+        <div className="stays-search"><i /><i /><i /></div>
+        <div className="stays-grid"><i /><i /><i /></div>
+      </div>
+    </div>
+  );
+  return (
+    <div className="project-artwork ipl-art" aria-hidden="true">
+      <div className="art-topbar"><i /><i /><i /><span>IPL / analytics</span></div>
+      <div className="ipl-content">
+        <div className="ipl-title">Season insights</div>
+        <div className="ipl-metrics"><i /><i /><i /></div>
+        <div className="ipl-chart">{[32, 55, 44, 76, 62, 91, 49, 70, 58, 82, 39].map((height, i) => <i key={i} style={{ height: height + "%" }} />)}</div>
+      </div>
+    </div>
+  );
+}
+
+function ProjectCard({ project, index }: { project: (typeof projects)[number]; index: number }) {
+  return (
+    <Reveal delay={(index % 2) * 0.07}>
+      <article className="project-card">
+        <a className="project-art-link" href={project.source} target="_blank" rel="noreferrer" aria-label={"View " + project.name + " source code"}>
+          <ProjectArtwork id={project.id} />
+          <span className="project-art-open"><ArrowUpRight size={17} /></span>
+        </a>
+        <div className="project-card-body">
+          <div className="project-card-meta"><span>{project.number}</span><span>{project.category}</span></div>
+          <h3>{project.name}</h3>
+          <p>{project.description}</p>
+          <div className="project-tags">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
+          <div className="project-links">
+            <a href={project.source} target="_blank" rel="noreferrer"><Github size={14} /> Source code <ArrowUpRight size={13} /></a>
+            {project.live && <a href={project.live} target="_blank" rel="noreferrer"><ExternalLink size={13} /> Live app <ArrowUpRight size={13} /></a>}
+          </div>
+        </div>
+      </article>
     </Reveal>
   );
 }
 
-export default function Home() {
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [emailCopied, setEmailCopied] = useState(false);
-  const [activeSection, setActiveSection] = useState("top");
-  const selected = useMemo(() => projects.find((project) => project.id === selectedProject) || null, [selectedProject]);
+function ExperienceCard({ item, index }: { item: (typeof experience)[number]; index: number }) {
+  return (
+    <Reveal delay={index * 0.08}>
+      <article className="experience-card">
+        <div className="experience-card-head">
+          <div className="company-mark">{item.company === "State Street Corporation" ? "SS" : "D360"}</div>
+          <div className="company-heading">
+            <div className="company-period">{item.period}</div>
+            <h3>{item.company}</h3>
+            <span>{item.location}</span>
+          </div>
+          {index === 0 && <span className="current-pill"><i /> CURRENT</span>}
+        </div>
+        <div className="experience-roles">
+          {item.roles.map((role) => (
+            <div className="experience-role" key={role.title}>
+              <span className="role-marker" /><strong>{role.title}</strong><small>{role.period}</small>
+            </div>
+          ))}
+        </div>
+        <p className="experience-summary">{item.summary}</p>
+        <ul className="experience-highlights">{item.highlights.map((point) => <li key={point}>{point}</li>)}</ul>
+        <div className="project-tags experience-tags">{item.stack.map((tag) => <span key={tag}>{tag}</span>)}</div>
+      </article>
+    </Reveal>
+  );
+}
 
-  useEffect(() => {
-    const ids = ["top", "experience", "projects", "systems", "stack", "contact"];
-    const nodes = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-      if (visible[0]) setActiveSection(visible[0].target.id);
-    }, { rootMargin: "-20% 0px -65% 0px", threshold: [0, .15, .35, .6] });
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, []);
+function TerminalPlayground() {
+  const [input, setInput] = useState("");
+  const [history, setHistory] = useState<{ command: string; output: string }[]>([
+    { command: "whoami", output: "Krish Italiya — Software Engineer at State Street." },
+    { command: "focus", output: "Product engineering · Backend systems · Cloud infrastructure" },
+    { command: "help", output: "Try: experience, projects, skills, education, contact, resume, clear" }
+  ]);
 
-  const copyEmail = async () => {
+  const commands: Record<string, string> = {
+    help: "Available commands: whoami, focus, experience, projects, skills, education, contact, resume, clear",
+    whoami: "Krish Italiya — Software Engineer at State Street Corporation, Hyderabad.",
+    focus: "Product engineering · Backend systems · Cloud infrastructure · Problem solving",
+    experience: "State Street (Jan 2025 — Present) · D360 Tech (Jun 2024 — Jul 2024). Scroll to Experience for details.",
+    projects: "Foundry · InstaCV · Airbnb Clone · IPL Data Analysis. Scroll to Projects to explore each build.",
+    skills: "Java · C++ · JavaScript · TypeScript · Python · React · Spring Boot · Oracle · MongoDB · GCP",
+    education: "B.Tech Computer Science and Engineering, Institute of Technology, Nirma University — 8.31/10.",
+    contact: "Email: krishitaliya11@gmail.com · LinkedIn: linkedin.com/in/krishitaliya",
+    resume: "Open the résumé using the View résumé link in the navigation.",
+    clear: ""
+  };
+
+  const runCommand = (raw: string) => {
+    const command = raw.trim().toLowerCase();
+    if (!command) return;
+    if (command === "clear") {
+      setHistory([]);
+      setInput("");
+      return;
+    }
+    const output = commands[command] ?? "Command not found. Type 'help' to see the available commands.";
+    setHistory((items) => [...items.slice(-7), { command: raw.trim(), output }]);
+    setInput("");
+  };
+
+  return (
+    <div className="terminal-window">
+      <div className="terminal-topbar">
+        <div className="terminal-dots"><i /><i /><i /></div>
+        <div className="terminal-tab"><Terminal size={13} /> krish@portfolio <span>⌄</span></div>
+        <span className="terminal-mode">INTERACTIVE PROFILE</span>
+      </div>
+      <div className="terminal-content" aria-live="polite">
+        {history.map((entry, index) => (
+          <div className="terminal-entry" key={index}>
+            <div className="terminal-command"><span>$</span> {entry.command}</div>
+            <div className="terminal-output">{entry.output}</div>
+          </div>
+        ))}
+        <form className="terminal-input-row" onSubmit={(event) => { event.preventDefault(); runCommand(input); }}>
+          <span>$</span>
+          <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="type a command..." aria-label="Type a portfolio terminal command" autoComplete="off" spellCheck={false} />
+          <button type="submit" aria-label="Run command"><ArrowRight size={15} /></button>
+        </form>
+      </div>
+      <div className="terminal-suggestions">
+        <span>TRY</span>
+        {["experience", "projects", "skills", "contact"].map((command) => <button type="button" key={command} onClick={() => runCommand(command)}>{command}</button>)}
+      </div>
+    </div>
+  );
+}
+
+function CopyEmailButton() {
+  const [copied, setCopied] = useState(false);
+  const copy = async () => {
     try {
       await navigator.clipboard.writeText(profile.email);
-      setEmailCopied(true);
-      window.setTimeout(() => setEmailCopied(false), 1800);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
     } catch {
       window.location.href = "mailto:" + profile.email;
     }
   };
-
-  return (
-    <main className="site-shell">
-      <header className="site-header">
-        <div className="container nav-inner">
-          <a href="#top" className="brand" aria-label="Krish Italiya home">
-            <div className="brand-mark">KI<span>.</span></div>
-            <div><div className="brand-name">KRISH ITALIYA</div><div className="brand-sub">ENGINEERING PORTFOLIO / 001</div></div>
-          </a>
-          <nav className="nav-links" aria-label="Main navigation">
-            {navItems.map(([label, href]) => <a key={href} href={href} className={activeSection === href.slice(1) ? "active" : ""}>{label}</a>)}
-          </nav>
-          <div className="nav-actions">
-            <ThemeControl />
-            <CommandButton />
-            <button className="icon-button mobile-toggle" onClick={() => setMobileOpen((value) => !value)} aria-label="Toggle navigation" aria-expanded={mobileOpen}><Menu size={17}/></button>
-          </div>
-        </div>
-        {mobileOpen && <nav className="mobile-nav" aria-label="Mobile navigation">{navItems.map(([label, href]) => <a key={href} href={href} onClick={() => setMobileOpen(false)}>{label}</a>)}</nav>}
-      </header>
-
-      <section id="top" className="container hero">
-        <div className="hero-copy">
-          <motion.div className="hero-status" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5 }}>
-            <span className="status-dot"/><span>OPEN TO ENGINEERING CONVERSATIONS</span><span>/</span><span>{profile.location}</span>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .7, delay: .08 }}>
-            <div className="eyebrow hero-kicker">SOFTWARE ENGINEER / FULL-STACK & SYSTEMS</div>
-            <h1 className="hero-title">Building<br/><span className="soft-line">what&apos;s</span><br/><span className="accent-text">next.</span></h1>
-            <p className="hero-description"><strong>{profile.tagline}</strong> {profile.intro}</p>
-          </motion.div>
-          <motion.div className="hero-actions" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: .25 }}>
-            <a href="#projects" className="button button-primary">EXPLORE MY WORK <ArrowDownRight size={15}/></a>
-            <a href={profile.github} target="_blank" rel="noreferrer" className="button button-quiet"><Github size={14}/> GITHUB <ArrowUpRight size={13}/></a>
-            <button onClick={copyEmail} className="button button-quiet">{emailCopied ? <Check size={14}/> : <FileText size={14}/>} {emailCopied ? "COPIED" : "COPY EMAIL"}</button>
-          </motion.div>
-          <motion.div className="hero-focus" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: .45 }}>
-            <span className="hero-focus-label">CURRENT FOCUS</span><span className="focus-separator"/><span className="focus-items">{profile.currentFocus.join(" · ")}</span>
-          </motion.div>
-          <div className="hero-scroll-cue"><span className="scroll-cue-line"/><span>SCROLL TO EXPLORE</span><span className="scroll-cue-index">01 — 06</span></div>
-        </div>
-        <motion.div className="hero-visual" initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .8, delay: .16 }}>
-          <div className="visual-glow"/>
-          <ParticlePortrait />
-          <div className="hero-caption"><span>BUILD MODE / ACTIVE</span><strong>RESEARCH → ENGINEER → REFINE</strong></div>
-        </motion.div>
-      </section>
-
-      <div className="container">
-        <Reveal>
-          <div className="signal-strip">
-            {signals.map((signal, index) => <div className="signal" key={signal.label}><span className="signal-index">0{index + 1}</span><div><div className="signal-value">{signal.value}</div><div className="signal-label">{signal.label}</div><div className="signal-detail">{signal.detail}</div></div></div>)}
-          </div>
-        </Reveal>
-      </div>
-
-      <section id="experience" className="container section">
-        <Reveal><SectionHeading index="01 / THE JOURNEY" title="Where I've built." description="Production engineering, pragmatic problem-solving, and a bias for making complex interfaces feel simple."/></Reveal>
-        <div className="experience-grid">
-          <div className="timeline">
-            {experience.map((item, index) => <Reveal key={item.company + item.period} delay={index % 2 ? 1 : 0}>
-              <article className="timeline-item">
-                <span className="timeline-dot"/>
-                <div className="timeline-period">{item.period}</div>
-                <h3 className="timeline-role">{item.role}</h3>
-                <div className="timeline-company">{item.company} <span className="timeline-location">/ {item.location}</span></div>
-                <p className="timeline-description">{item.description}</p>
-                <ul className="highlight-list">{item.highlights.map((highlight) => <li key={highlight}>{highlight}</li>)}</ul>
-                <div className="tag-list">{item.stack.map((tag) => <span key={tag}>{tag}</span>)}</div>
-              </article>
-            </Reveal>)}
-          </div>
-          <div className="side-stack">
-            <Reveal><article className="info-card">
-              <div className="eyebrow">EDUCATION / {education.period}</div>
-              <div className="info-card-head"><div><h3>{education.degree}</h3><p>{education.institution}<br/>{education.location}</p></div><div className="info-badge">{education.result}</div></div>
-              <div className="timeline-location" style={{ marginTop: 14 }}>CGPA / 10</div>
-            </article></Reveal>
-            <Reveal delay={1}><article className="info-card">
-              <div className="eyebrow">LEADERSHIP / {leadership.period}</div>
-              <h3>{leadership.role}</h3><p>{leadership.organization}</p><p>{leadership.detail}</p>
-              <div className="tag-list"><span>COMMUNITY</span><span>EVENT OPERATIONS</span><span>PROBLEM DESIGN</span></div>
-            </article></Reveal>
-            <Reveal delay={2}><article className="info-card">
-              <div className="eyebrow">COMPETITIVE PROGRAMMING</div>
-              {achievements.map((achievement) => <div className="achievement-row" key={achievement.label}><div><div className="achievement-label">{achievement.label}</div><div className="achievement-detail">{achievement.detail}</div></div><div className="achievement-value">{achievement.value}</div></div>)}
-              <p style={{ fontSize: 9 }}>Rating and ranking figures are from the supplied resume; profile verification is still pending.</p>
-            </article></Reveal>
-          </div>
-        </div>
-      </section>
-
-      <section id="projects" className="container section">
-        <Reveal><SectionHeading index="02 / SELECTED BUILDS" title="Things I've shipped." description="Project deep-dives that show the problem, implementation, architecture, and engineering trade-offs — not just a screenshot and a stack list."/></Reveal>
-        <div className="project-grid">
-          {projects.map((project, index) => <ProjectCard key={project.id} project={project} index={index} onOpen={() => setSelectedProject(project.id)}/>)}
-        </div>
-      </section>
-
-      <section id="systems" className="container section">
-        <Reveal><SectionHeading index="03 / SYSTEMS ROOM" title="Think in systems." description="A closer look at the platform engineering questions I'm exploring through Foundry."/></Reveal>
-        <div className="systems-layout">
-          <Reveal className="systems-copy">
-            <div className="eyebrow">FOUNDRY / INTERNAL DEVELOPER PLATFORM</div>
-            <h3>From source<br/>to running service.</h3>
-            <p>Foundry explores the control plane behind a developer platform: register a trusted repository, request a deployment, follow the build, inspect logs, and check application health. The current demo uses a local runtime and is deliberately not presented as a public production PaaS.</p>
-            <div className="tag-list"><span>JAVA</span><span>SPRING BOOT</span><span>REACT</span><span>DOCKER</span><span>RUNTIME ADAPTERS</span></div>
-            <div style={{ marginTop: 24 }}><a href="https://github.com/krish-italiya/Foundry" target="_blank" rel="noreferrer" className="button button-primary">EXPLORE FOUNDRY <ArrowUpRight size={14}/></a></div>
-          </Reveal>
-          <Reveal delay={1}>
-            <div className="systems-flow">
-              <div className="flow-caption"><span>DEPLOYMENT PATH / CONCEPTUAL VIEW</span><span>FLOW.001</span></div>
-              <div className="flow-nodes">
-                <div className="flow-node"><span>01</span><strong>Source repository</strong></div><div className="flow-connector"/>
-                <div className="flow-node primary"><span>02</span><strong>Control plane API</strong><i className="flow-pulse"/></div><div className="flow-connector"/>
-                <div className="flow-node"><span>03</span><strong>Build worker</strong></div><div className="flow-connector"/>
-                <div className="flow-node"><span>04</span><strong>Runtime adapter</strong></div><div className="flow-connector"/>
-                <div className="flow-node"><span>05</span><strong>Application + health check</strong></div>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section id="stack" className="container section">
-        <Reveal><SectionHeading index="04 / THE TOOLKIT" title="Tools of the trade." description="The technologies I use to turn a requirement into something reliable, usable, and maintainable."/></Reveal>
-        <div className="skills-grid">{skills.map((group, index) => <Reveal key={group.group} delay={index % 3}><div className="skill-card"><div className="skill-card-head"><span className="eyebrow">{group.group}</span><span className="mono muted" style={{ fontSize: 8 }}>0{index + 1}</span></div><div className="skill-items">{group.items.map((item) => <span key={item}>{item}</span>)}</div></div></Reveal>)}</div>
-      </section>
-
-      <section className="container section">
-        <div className="interactive-row">
-          <Reveal className="interactive-copy"><div className="eyebrow">05 / INTERACTIVE TERMINAL</div><h2>Don&apos;t just browse.<br/><span className="accent-text">Explore.</span></h2><p>A tiny shell for the curious. Ask it about me, inspect the stack, or jump to a project. You can also use the command palette with Ctrl/⌘ + K.</p><div style={{ marginTop: 23 }}><GithubCard/></div></Reveal>
-          <Reveal delay={1}><TerminalWidget/></Reveal>
-        </div>
-      </section>
-
-      <section id="contact" className="contact-wrap">
-        <div className="container contact-inner">
-          <Reveal>
-            <div className="eyebrow">06 / OPEN CHANNEL</div>
-            <h2 className="contact-title">Have a hard<br/>problem? <span className="accent-text">Let&apos;s build.</span></h2>
-            <p className="contact-description">I&apos;m interested in thoughtful engineering conversations, challenging products, and teams that care about how things are built.</p>
-            <div style={{ marginTop: 27 }}><a href={"mailto:" + profile.email} className="button button-primary">START A CONVERSATION <Send size={14}/></a></div>
-          </Reveal>
-          <Reveal delay={1} className="contact-links">
-            <a href={"mailto:" + profile.email} className="contact-link"><span><Globe2 size={15}/>{profile.email}</span><ArrowUpRight size={14}/></a>
-            <a href={profile.github} target="_blank" rel="noreferrer" className="contact-link"><span><Github size={15}/>GitHub</span><ArrowUpRight size={14}/></a>
-            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="contact-link"><span><Linkedin size={15}/>LinkedIn</span><ArrowUpRight size={14}/></a>
-            <a href="/resume" className="contact-link"><span><FileText size={15}/>View / print resume</span><ArrowUpRight size={14}/></a>
-          </Reveal>
-        </div>
-      </section>
-
-      <footer className="container footer"><div>© {new Date().getFullYear()} KRISH ITALIYA / BUILT WITH INTENT.</div><div className="footer-right"><span>DESIGNED & ENGINEERED</span><span className="accent-text">●</span><a href="#top">BACK TO TOP ↑</a></div></footer>
-
-      <CommandPalette />
-      <ProjectDialog project={selected} onClose={() => setSelectedProject(null)} />
-    </main>
-  );
+  return <button type="button" className="button button-secondary" onClick={copy}>{copied ? <Check size={15} /> : <Mail size={15} />}{copied ? "Copied email" : "Copy email"}</button>;
 }
 
-function CommandButton() {
-  return <button className="command-trigger" onClick={() => window.dispatchEvent(new Event("krish-open-command"))} aria-label="Open command palette"><Command size={13}/><span>COMMAND</span><kbd>⌘ K</kbd></button>;
+export default function Home() {
+  return (
+    <MotionConfig reducedMotion="user">
+      <main className="site-shell">
+        <Header />
+
+        <section id="home" className="page-width hero-section">
+          <div className="hero-copy">
+            <motion.div className="hero-kicker" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
+              <span className="availability-dot" /> SOFTWARE ENGINEER <i /> FULL-STACK <i /> CLOUD
+            </motion.div>
+            <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.72, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}>
+              Hi, I’m<br /><span>Krish Italiya.</span>
+            </motion.h1>
+            <motion.p className="hero-description" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.65, delay: 0.18 }}>
+              {profile.tagline} {profile.introduction}
+            </motion.p>
+            <motion.div className="hero-actions" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.28 }}>
+              <a href="#projects" className="button button-primary">View projects <ArrowDownRight size={16} /></a>
+              <a href="/resume" className="button button-secondary"><FileText size={15} /> View résumé</a>
+            </motion.div>
+            <motion.div className="hero-meta" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.42, duration: 0.55 }}>
+              <span><BriefcaseBusiness size={14} /> {profile.currentRole}</span><i /><span><Cloud size={14} /> {profile.location}</span>
+            </motion.div>
+          </div>
+
+          <motion.div className="hero-portrait" initial={{ opacity: 0, y: 28, scale: 0.985 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.9, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}>
+            <div className="portrait-backplate" />
+            <div className="portrait-orbit portrait-orbit-one" />
+            <div className="portrait-orbit portrait-orbit-two" />
+            <Image src="/krish-italiya.webp" alt="Krish Italiya wearing a dark charcoal jacket" width={360} height={566} priority data-critical="true" className="portrait-image" sizes="(max-width: 760px) 78vw, (max-width: 1100px) 42vw, 410px" />
+            <div className="portrait-caption"><span>KRISH ITALIYA</span><small>SOFTWARE ENGINEER · HYDERABAD</small></div>
+          </motion.div>
+
+          <motion.aside className="hero-facts" initial={{ opacity: 0, x: 14 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.65, delay: 0.32 }}>
+            <div className="hero-fact"><span className="fact-icon"><BriefcaseBusiness size={17} /></span><div><small>CURRENTLY</small><strong>State Street Corporation</strong><span>Software Engineer · Associate 2</span></div></div>
+            <div className="hero-fact"><span className="fact-icon"><GraduationCap size={18} /></span><div><small>EDUCATION</small><strong>B.Tech · Computer Science</strong><span>Nirma University · 2021–2025</span></div></div>
+            <div className="hero-fact"><span className="fact-icon"><Code2 size={18} /></span><div><small>INTERESTS</small><strong>Product & systems</strong><span>Frontend · Backend · Cloud</span></div></div>
+          </motion.aside>
+        </section>
+
+        <section id="experience" className="page-width section-block">
+          <Reveal><SectionTitle eyebrow="01 / EXPERIENCE" title="Where I’ve worked" description="Production engineering, application modernization, and practical problem-solving across two teams." /></Reveal>
+          <div className="experience-grid">{experience.map((item, index) => <ExperienceCard item={item} index={index} key={item.company} />)}</div>
+        </section>
+
+        <section id="projects" className="page-width section-block">
+          <Reveal><SectionTitle eyebrow="02 / PROJECTS" title="Things I’ve built" description="A selection of products and engineering experiments. Each project is presented with its own context and source." /></Reveal>
+          <div className="projects-grid">{projects.map((project, index) => <ProjectCard project={project} index={index} key={project.id} />)}</div>
+        </section>
+
+        <section id="skills" className="page-width section-block">
+          <Reveal><SectionTitle eyebrow="03 / TECHNICAL SKILLS" title="Tools I work with" description="A practical toolkit across frontend, backend, data, cloud, and everyday engineering." /></Reveal>
+          <div className="skills-grid">
+            {skills.map((group, index) => {
+              const Icon = [Code2, Monitor, Database, Cloud][index] ?? Layers3;
+              return <Reveal delay={index * 0.05} key={group.group}><article className="skill-card"><div className="skill-card-head"><span className="skill-icon"><Icon size={19} /></span><small>0{index + 1}</small></div><h3>{group.group}</h3><div className="skill-list">{group.items.map((item) => <span key={item}>{item}</span>)}</div></article></Reveal>;
+            })}
+          </div>
+        </section>
+
+        <section id="playground" className="page-width section-block">
+          <Reveal><SectionTitle eyebrow="04 / PLAYGROUND" title="A little command line" description="A small interactive terminal for exploring the information on this portfolio. It’s a navigation aid, not a real shell." /></Reveal>
+          <Reveal delay={0.08}><TerminalPlayground /></Reveal>
+        </section>
+
+        <section id="about" className="page-width section-block about-section">
+          <Reveal><div className="about-copy"><SectionTitle eyebrow="05 / ABOUT" title="A bit about me" /><p>{profile.about}</p><div className="interest-list">{profile.interests.map((interest) => <span key={interest}>{interest}</span>)}</div></div></Reveal>
+          <Reveal delay={0.1}>
+            <div className="credentials-panel">
+              <div className="credentials-heading"><span className="credential-icon"><GraduationCap size={18} /></span><div><small>EDUCATION</small><strong>{education.degree}</strong></div></div>
+              <div className="credential-detail"><span>{education.institution}</span><strong>{education.result}</strong></div>
+              <div className="credential-location">{education.period} · {education.location}</div>
+              <div className="credential-divider" />
+              <div className="credentials-heading"><span className="credential-icon"><Award size={18} /></span><div><small>LEADERSHIP</small><strong>{leadership.role}</strong></div></div>
+              <div className="credential-detail"><span>{leadership.organization}</span><small>{leadership.period}</small></div>
+              <p className="leadership-detail">{leadership.detail}</p>
+            </div>
+          </Reveal>
+        </section>
+
+        <section className="page-width achievements-section">
+          <Reveal><div className="achievements-heading"><div><div className="section-eyebrow"><span />A FEW MILESTONES</div><h2>Outside the day job</h2></div><p>Competitive programming and community work have been a consistent part of my learning journey.</p></div></Reveal>
+          <div className="achievement-grid">
+            {achievements.map((item, index) => <Reveal delay={index * 0.04} key={item.label}><div className="achievement-card"><div className="achievement-value">{item.value}</div><strong>{item.label}</strong><span>{item.detail}</span></div></Reveal>)}
+          </div>
+        </section>
+
+        <section id="contact" className="page-width contact-section">
+          <Reveal><div className="contact-panel"><div className="contact-copy"><div className="section-eyebrow"><span />06 / CONTACT</div><h2>Let’s build something useful.</h2><p>For engineering opportunities, interesting problems, or a thoughtful conversation, feel free to reach out.</p></div><div className="contact-actions"><a href={"mailto:" + profile.email} className="button button-primary"><Send size={15} /> Get in touch <ArrowUpRight size={14} /></a><CopyEmailButton /></div></div></Reveal>
+          <Reveal><div className="contact-links"><a href={"mailto:" + profile.email}><Mail size={16} /> {profile.email} <ArrowUpRight size={13} /></a><a href={profile.github} target="_blank" rel="noreferrer"><Github size={16} /> GitHub <ArrowUpRight size={13} /></a><a href={profile.linkedin} target="_blank" rel="noreferrer"><Linkedin size={16} /> LinkedIn <ArrowUpRight size={13} /></a><a href="/resume"><FileText size={16} /> Résumé <ArrowUpRight size={13} /></a></div></Reveal>
+        </section>
+
+        <footer className="page-width site-footer">
+          <a href="#home" className="footer-brand"><span className="brand-symbol">KI<span>.</span></span><strong>KRISH ITALIYA</strong></a>
+          <span>DESIGNED & BUILT WITH CARE · {new Date().getFullYear()}</span>
+          <a href="#home">BACK TO TOP ↑</a>
+        </footer>
+      </main>
+    </MotionConfig>
+  );
 }

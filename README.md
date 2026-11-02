@@ -1,6 +1,13 @@
-# KRISH.OS — Engineering Portfolio
+# Krish Italiya — Software Engineer Portfolio
 
-An interactive portfolio for Krish Italiya, built with Next.js, React, TypeScript, Tailwind CSS, Framer Motion, Three.js, and MediaPipe.
+A responsive, dark-first software engineer portfolio with a separately designed light theme, a session-only brand intro, a readiness-based loader, scroll reveals, and a small interactive terminal.
+
+## Stack
+
+- Next.js 16 / React 19 / TypeScript
+- Tailwind CSS 4 and custom CSS design tokens
+- Framer Motion for entry and in-view transitions
+- Locally bundled WebP portrait
 
 ## Local development
 
@@ -9,38 +16,28 @@ npm install
 npm run dev
 \`\`\`
 
-Open http://localhost:3000.
-
-## Build and verify
+## Verification
 
 \`\`\`bash
 npm run lint
 npm run build
 \`\`\`
 
-GitHub Actions runs lint and production build on pushes and pull requests to \`main\`.
+GitHub Actions runs both checks on pushes and pull requests.
 
-## Hero portrait source
+## Motion behavior
 
-Add your portrait at \`public/portrait.png\`.
+- The branded KRISH ITALIYA intro runs once per browser tab session.
+- The functional loader only appears if the critical portrait/font readiness takes more than 180ms. It disappears when those resources are ready; it does not display a fake progress percentage or add an artificial minimum duration.
+- Next.js \`loading.tsx\` supplies a minimal fallback for route-level loading.
+- Scroll reveals use viewport entry and do not hijack native scrolling.
+- The dark/light switch applies immediately with a short, localized colour ripple.
+- The site respects \`prefers-reduced-motion\`.
 
-- A transparent PNG uses its alpha channel directly.
-- An ordinary portrait PNG is segmented on-device with MediaPipe Selfie Segmenter before points are generated. The image itself is not uploaded to a remote image-processing service.
-- Use a front-facing or slight three-quarter portrait, shoulders visible, even lighting, and a simple background for the cleanest result.
-- When the asset is missing, the hero renders a temporary silhouette point-cloud rather than a rectangular grid.
+## Content
 
-The particle effect uses a Three.js point cloud and custom GPU shaders. The point positions, scatter paths, color and stagger values are prepared once; the vertex shader handles convergence and pointer response per frame.
-
-MediaPipe assets are loaded on demand from Google's model storage and jsDelivr. Segmentation runs once for the static portrait, not as a continuous video task.
-
-## Resume
-
-The \`/resume\` route is a print-ready HTML resume. Use **Print / Save PDF** in the browser to export it.
+Portfolio details are based on the supplied resume and project repositories. Foundry is one project among several and is clearly identified as a local educational prototype; its repository execution is not sandboxed. Competitive-programming values reflect the supplied resume figures and should be refreshed before publication if they have changed.
 
 ## Deployment
 
-Import this repository into Vercel. Set \`NEXT_PUBLIC_SITE_URL\` to the canonical production URL to publish an absolute sitemap URL.
-
-## Content accuracy
-
-Content is based on the supplied resume and public repositories. Foundry's local-only and non-sandboxed execution boundaries are called out explicitly. Competitive-programming figures reflect the supplied resume and should be revalidated against current profiles before external publication.
+Import the repository into Vercel and set \`NEXT_PUBLIC_SITE_URL\` to the canonical production URL.
