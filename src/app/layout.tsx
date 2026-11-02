@@ -26,7 +26,7 @@ export const viewport: Viewport = {
   colorScheme: "dark light"
 };
 
-const themeBootstrap = \`(function(){try{var t=localStorage.getItem("krish-os-theme")||"system";var l=window.matchMedia("(prefers-color-scheme: light)").matches;document.documentElement.dataset.theme=t==="system"?(l?"light":"dark"):t}catch(e){document.documentElement.dataset.theme="dark"}})();\`;
+const themeBootstrap = `(function(){try{var t=localStorage.getItem("krish-os-theme")||"system";var l=window.matchMedia("(prefers-color-scheme: light)").matches;document.documentElement.dataset.theme=t==="system"?(l?"light":"dark"):t}catch(e){document.documentElement.dataset.theme="dark"}})();`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

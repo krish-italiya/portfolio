@@ -289,7 +289,7 @@ export default function Home() {
 
       <section className="container section">
         <div className="interactive-row">
-          <Reveal className="interactive-copy"><div className="eyebrow">05 / INTERACTIVE TERMINAL</div><h2>Don't just browse.<br/><span className="accent-text">Explore.</span></h2><p>A tiny shell for the curious. Ask it about me, inspect the stack, or jump to a project. You can also use the command palette with Ctrl/⌘ + K.</p><div style={{ marginTop: 23 }}><GithubCard/></div></Reveal>
+          <Reveal className="interactive-copy"><div className="eyebrow">05 / INTERACTIVE TERMINAL</div><h2>Don&apos;t just browse.<br/><span className="accent-text">Explore.</span></h2><p>A tiny shell for the curious. Ask it about me, inspect the stack, or jump to a project. You can also use the command palette with Ctrl/⌘ + K.</p><div style={{ marginTop: 23 }}><GithubCard/></div></Reveal>
           <Reveal delay={1}><TerminalWidget/></Reveal>
         </div>
       </section>
@@ -298,8 +298,8 @@ export default function Home() {
         <div className="container contact-inner">
           <Reveal>
             <div className="eyebrow">06 / OPEN CHANNEL</div>
-            <h2 className="contact-title">Have a hard<br/>problem? <span className="accent-text">Let's build.</span></h2>
-            <p className="contact-description">I'm interested in thoughtful engineering conversations, challenging products, and teams that care about how things are built.</p>
+            <h2 className="contact-title">Have a hard<br/>problem? <span className="accent-text">Let&apos;s build.</span></h2>
+            <p className="contact-description">I&apos;m interested in thoughtful engineering conversations, challenging products, and teams that care about how things are built.</p>
             <div style={{ marginTop: 27 }}><a href={"mailto:" + profile.email} className="button button-primary">START A CONVERSATION <Send size={14}/></a></div>
           </Reveal>
           <Reveal delay={1} className="contact-links">

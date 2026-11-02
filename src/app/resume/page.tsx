@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowLeft, Download } from "lucide-react";
 import { education, experience, leadership, profile, projects, skills } from "@/data/portfolio";
 
@@ -7,7 +8,7 @@ export default function ResumePage() {
   return (
     <main className="resume-page">
       <div className="resume-toolbar">
-        <a href="/" className="resume-back"><ArrowLeft size={15}/> Back to portfolio</a>
+        <Link href="/" className="resume-back"><ArrowLeft size={15}/> Back to portfolio</Link>
         <button onClick={() => window.print()} className="resume-print"><Download size={14}/> Print / Save PDF</button>
       </div>
       <article className="resume-sheet">
